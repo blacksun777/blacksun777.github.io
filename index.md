@@ -4,3 +4,4 @@
 
 layout: home
 ---
+![Elias Geisseler](/assets/elge_bild.jpg)
