@@ -6,6 +6,7 @@ categories: update
 ---
 # Spaceship to Mars
 The goal is to optimize a non trivial model with multiple parametes and conditions using `pyTourch.optim` and **Karnush-Kuhn-Tucker** (KKT) 
+
 We want to send a spacecraft from Earth to Mars in a straight line at constant speed, Ignoring gravity and Orbital mechanics ([see this otherwise](https://www.jpl.nasa.gov/edu/teach/activity/lets-go-to-mars-calculating-launch-windows/))
 {% include videoPlayer.html file="tomars/toMars0.mp4" %}
 All the code and additional details can be found [here](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW)
