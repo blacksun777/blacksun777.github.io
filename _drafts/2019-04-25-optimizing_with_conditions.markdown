@@ -21,10 +21,36 @@ All the code and additional details can be found [here](https://colab.research.g
 * Tell how many days it will take the spaceship to travel
 * Max speed allowed is 0.5 M km/day
 
-# Attribution
-Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c@gmail.com
+# Optimizing
+How optimization works in torch, also in general with StochasticGradientDescent (SGD)
+{% include videoPlayer.html file="tomars/toMars1.mp4" %}
+
+How importantant starting positions are when using SGD
+{% include videoPlayer.html file="tomars/toMars2.mp4" %}
+
+# Unconstraint
+{% include videoPlayer.html file="tomars/toMars3.mp4" %}
+{% include videoPlayer.html file="tomars/toMars4.mp4" %}
+{% include videoPlayer.html file="tomars/toMars5.mp4" %}
+{% include videoPlayer.html file="tomars/toMars6.mp4" %}
+{% include videoPlayer.html file="tomars/toMars7.mp4" %}
+{% include videoPlayer.html file="tomars/toMars8.mp4" %}
+
+
+# Constraint with Karnush-Kuhn-Tucker
 
 \begin{equation}
-   |\psi_1\rangle = a|0\rangle + b|1\rangle
+   L(x,\lambda, \alpha) = f(x)+\sum_{i} \lambda_{i} g_{i}(x) + \sum_{j} \alpha_{j} h_{j}(x)
 \end{equation}
 
+{% include videoPlayer.html file="tomars/toMars9.mp4" %}
+{% include videoPlayer.html file="tomars/toMars10.mp4" %}
+
+## Solution
+
+{% include videoPlayer.html file="tomars/toMars11.mp4" %}
+
+# Conclutions
+
+# Attribution
+Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c@gmail.com
