@@ -1,9 +1,10 @@
 ---
 layout: post
 title:  "Optimizing with Karnush-Kuhn-Tucker conditions"
-date:   2019-01-25 08:00:00 -0600
+date:   2019-04-25 08:00:00 -0600
 categories: update
 ---
+{% include mathJax.html %}
 # Spaceship to Mars
 The goal is to optimize a non trivial model with multiple parametes and conditions using `pyTourch.optim` and **Karnush-Kuhn-Tucker** (KKT) 
 
@@ -20,4 +21,10 @@ All the code and additional details can be found [here](https://colab.research.g
 * Tell how many days it will take the spaceship to travel
 * Max speed allowed is 0.5 M km/day
 
+# Attribution
+Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c@gmail.com
+
+\begin{equation}
+   |\psi_1\rangle = a|0\rangle + b|1\rangle
+\end{equation}
 
