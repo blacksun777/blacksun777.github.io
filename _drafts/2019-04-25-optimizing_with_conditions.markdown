@@ -22,13 +22,52 @@ All the code and additional details can be found [here](https://colab.research.g
 * Max speed allowed is 0.5 M km/day
 
 # Optimizing
-How optimization works in torch, also in general with StochasticGradientDescent (SGD)
-{% include videoPlayer.html file="tomars/toMars1.mp4" %}
+The [`PyTourch.Optim`](https://pytorch.org/docs/stable/optim.html) package contains optimizers that update model parameters based on the computet gradient with StochasticGradientDescent (SGD).
 
-How importantant starting positions are when using SGD
+Basically optimizers find minima for functions like $$f(x): x^2 -x -1$$
+
+{% include videoPlayer.html file="tomars/toMars1.mp4" %}
+By repeatetly going down the 'hill' we approch a local minima. We end up at a minima, in this case `0.5`
+
+{% highlight python %}
+import torch
+from torch.optim import SGD
+from torch import nn
+from torch import FloatTensor as ft
+
+# The function that should be minimized
+def lossFunction(x):
+  return x**2-x-1
+
+# Parameter x that should be minimized
+param_x = nn.Parameter(ft([4]))
+
+# Create optimizer and what parameter to optimize and how
+opt_sgd = SGD([param_x], lr = 0.1)
+
+# Loop to let SGD converge
+for i in range(20):
+  
+  # Remove previous gradient from parameters
+  opt_sgd.zero_grad() 
+  
+  # Compute the loss (the thing that should be minized)
+  loss = lossFunction(param_x)
+  
+  # Compute the gradient at current position (param_x)
+  loss.backward()
+  
+  # Let Optimizer step down the gradient based on computed gradient (backpropagate)
+  opt_sgd.step()
+{% endhighlight %}
+
+
+How importantant starting positions are when using optimizers can be illustrated with $$f(x): \cos(x)$$, we use two optimizers one with a slighly postive starting position and one with a slighly negative one.
 {% include videoPlayer.html file="tomars/toMars2.mp4" %}
+As we can see we end up in different minima. 
 
 # Unconstraint
+We now now how to use optimizers.
 {% include videoPlayer.html file="tomars/toMars3.mp4" %}
 {% include videoPlayer.html file="tomars/toMars4.mp4" %}
 {% include videoPlayer.html file="tomars/toMars5.mp4" %}
