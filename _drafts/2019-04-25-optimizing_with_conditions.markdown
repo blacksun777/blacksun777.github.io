@@ -29,6 +29,7 @@ Basically optimizers find minima for functions like $$f(x): x^2 -x -1$$
 {% include videoPlayer.html file="tomars/toMars1.mp4" %}
 By repeatetly going down the 'hill' we approch a local minima. We end up at a minima, in this case `0.5`
 
+We will use this general structure to find solutions to our problem. We first define our problem and then iteratively improove our solution by going down the hill with a small step. 
 {% highlight python %}
 import torch
 from torch.optim import SGD
@@ -42,7 +43,7 @@ def lossFunction(x):
 # Parameter x that should be minimized
 param_x = nn.Parameter(ft([4]))
 
-# Create optimizer and what parameter to optimize and how
+# Create optimizer and tell it what parameter to optimize and how
 opt_sgd = SGD([param_x], lr = 0.1)
 
 # Loop to let SGD converge
@@ -61,13 +62,21 @@ for i in range(20):
   opt_sgd.step()
 {% endhighlight %}
 
-
+Our problem is quite a bit more complex than the previous loss function, there are many possible solutions. That is why a good starting location is very important. 
 How importantant starting positions are when using optimizers can be illustrated with $$f(x): \cos(x)$$, we use two optimizers one with a slighly postive starting position and one with a slighly negative one.
 {% include videoPlayer.html file="tomars/toMars2.mp4" %}
-As we can see we end up in different minima. 
+As we can see and hopefully predicted, the initial value causes us to end up in different local mimima. In the Animation we can also see the difference between an SGD and Adam optimizer.
 
 # Unconstraint
-We now now how to use optimizers.
+With the understanding of how Optimizers work we can now model our problem. 
+
+$$\begin{equation}
+   calcPosXY(t,rad, r): (x,y) | x=cos(t, rad)r \land y=sin(t, rad)r \\
+   distance(t_{launch}, t_{flight}): \sqrt{(x_{mars}-x_{earth})^2+(y_{mars}-y_{earth})^2} | \\
+   (x_{mars}, y_{mars})=calcPosXY(t_{launch}+t_{flight}, rad_{mars}, r_{mars}) \\
+   \land (x_{earth}, y_{earth})=calcPosXY(t_{launch}, rad_{earth}, r_{earth})
+\end{equation}$$
+
 {% include videoPlayer.html file="tomars/toMars3.mp4" %}
 {% include videoPlayer.html file="tomars/toMars4.mp4" %}
 {% include videoPlayer.html file="tomars/toMars5.mp4" %}
