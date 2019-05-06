@@ -27,7 +27,7 @@ The [`PyTourch.Optim`](https://pytorch.org/docs/stable/optim.html) package conta
 Basically optimizers find minima for functions like $$f(x): x^2 -x -1$$
 
 {% include videoPlayer.html file="tomars/toMars1.mp4" %}
-By repeatedly going down the 'hill' we approach a local minima. We end up at a minima, in this case `0.5`
+By repeatedly going down the 'hill' we approach a local minima. We end up at a minima, in this case `x=0.5`
 
 We will use this general structure to find solutions to our problem. We first define our problem and then iteratively improve our solution by going down the hill with a small step. 
 {% highlight python %}
@@ -238,10 +238,115 @@ A ton of iterations and still not at the optimum. What happened? Since the dista
 In reality there is gravity of all the celestial bodies causing this plan to fail. **This Strategy is not useful. **
 
 # Constraint with Karnush-Kuhn-Tucker (KKT)
+While it's great to minimize functions with an optimizer we sometimes have constraints that need to be followed, like our speed limit of *0.5 M km/day*. 
 
-\begin{equation}
-   L(x,\lambda, \alpha) = f(x)+\sum_{i} \lambda_{i} g_{i}(x) + \sum_{j} \alpha_{j} h_{j}(x)
-\end{equation}
+There are different ways to do this. One way is to create or change our model so it is impossible to have values outside of our conditions. This is tricky and maybe not always possible. For example we could use speed instead of fly time in our model as a parameter. We then swap the speed with a function that binds it between 0 and 0.5 for any given meta speed parameter like sigmoid. 
+
+$$ speed(metaSpeed) = \frac{maxSpeed}{1+e^{-metaSpeed}}$$ 
+
+A general way to constrain an optimization is the Karnush-Kuhn-Tucker method. It's quite tricky to explain this simply so I would recommend the great chapter [4.4 Constrained Optimization](https://www.deeplearningbook.org/contents/numerical.html) of the [deeplearningbook](https://www.deeplearningbook.org/).
+
+
+Instead of a generalized problem I want to try explain it in applied situations. So let us start with the function to optimize:
+
+$$f(x) = x^2 -x -1 | 1\leq x\leq5$$
+
+Without the constraints $$1\leq x\leq5$$ we would have had the following optimization:
+
+$$ \min_{x} f(x) = \min_{x} x^2 -x -1 $$
+
+We did this already in the introduction of optimization section. But now we have the following inequality constraints and no equality constants:
+
+$$\begin{equation}
+   h_0: 1 - x \leq 0 \\
+   h_1: x - 5 \leq 0 
+\end{equation}$$
+
+Now let us look at the generalized Lagrangian:
+
+$$\begin{equation}
+   L(x,\lambda, \alpha) = f(x)+\sum_{i} \lambda_{i} g_{i}(x) + \sum_{j} \alpha_{j} h_{j}(x) \\
+   f(x) \text{ is the function to optimize} \\
+   \sum_{i} \lambda_{i} g_{i}(x) \text{ are the equality constants, we don't need them} \\
+   \sum_{j} \alpha_{j} h_{j}(x) \text{ are the inequality constants, we have 2} 
+\end{equation}$$
+
+By throwing away the empty sum for the equality constants and filling in the inequality constants we get:
+
+$$\begin{equation}
+   L(x,\alpha) = f(x) + \alpha_{0} h_{0}(x)+ \alpha_{1} h_{1}(x) \\
+   L(x,\alpha) = x^2 -x -1 + \alpha_{0} (1 - x)+ \alpha_{1}(x-5) \\
+\end{equation}$$
+
+And instead of optimizing all:
+
+$$\begin{equation}
+   \min_{x} \max_{\lambda} \max_{\alpha,\alpha \geq 0} L(x,\lambda, \alpha)
+\end{equation}$$
+
+we only need to optimize:
+
+$$\begin{equation}
+   \min_{x} \max_{\alpha,\alpha \geq 0} L(x,\alpha)
+\end{equation}$$
+
+Great! I know this can be confusing at first so let us observe two situations with the equations. Once for within bounds `x=1` and once outside of them `x=0.5` 
+
+$$\begin{equation}
+\text{x=1}\\
+   L(1,\alpha) = 1^2 -1 -1 + \alpha_{0} (1 - 1)+ \alpha_{1}(1-5)\\
+   L(1,\alpha) = -1 + \alpha_{0} (0)+ \alpha_{1}(-4)
+\end{equation}$$
+
+Now let us chose an $$a$$ that makes this equation as big as possible:
+
+$$\begin{equation}
+   \max_{\alpha,\alpha \geq 0} L(1,\alpha) = \max_{\alpha,\alpha \geq 0} (-1 + \alpha_{0} (0)+ \alpha_{1}(-4) )\\
+   \max_{\alpha,\alpha \geq 0} (\alpha_{0} * 0 )\to  \alpha_{0} = \infty \\
+   \max_{\alpha,\alpha \geq 0} (\alpha_{1} * -4 )\to  \alpha_{1} = 0
+\end{equation}$$
+
+Both constraints have no way to increase the value of the term. Note $$\alpha_{1} = 0$$ because all $$\alpha$$ can only be positive.
+
+But why $$\alpha_{0} = \infty$$? We plan to use gradient descent for our solution, this will cause our x to a bit under `x=1` causing the term to be slightly positive and that is why $$\alpha_{0}$$ will grow rather large, we will see later. 
+
+$$\begin{equation}
+   L(1,\alpha) = -1 + \infty*0+ 0*-4 \\
+   L(1,\alpha) = -1 = f(1) = f(x)
+\end{equation}$$
+
+Both constraints are satisfied and cause the terms to be zero. This is called *complementary slack*. We are left with the original $$f(x)$$. 
+Now let us observe the situation when a constraint is not satisfied anymore. `x=0.5` is actually the optimal solution without constraints. But with:
+ 
+$$\begin{equation}
+\text{x=0.5}\\
+   L(0.5,\alpha) = 0.5^2 -0.5 -1 + \alpha_{0} (1 - 0.5)+ \alpha_{1}(0.5-5)\\
+   L(0.5,\alpha) = -1.25 + \alpha_{0} (0.5)+ \alpha_{1}(-4.5)
+\end{equation}$$
+
+Now let us chose an $$a$$ that makes this equation as big as possible:
+
+$$\begin{equation}
+   \max_{\alpha,\alpha \geq 0} L(0.5,\alpha) = \max_{\alpha,\alpha \geq 0} (-1.25 + \alpha_{0} (0.5)+ \alpha_{1}(-4.5) )\\
+   \max_{\alpha,\alpha \geq 0} (\alpha_{0} * 0.5 )\to  \alpha_{0} = \infty \\
+   \max_{\alpha,\alpha \geq 0} (\alpha_{1} * -4.5 )\to  \alpha_{1} = 0
+\end{equation}$$
+
+Note $$\alpha_{1} = 0$$ because all $$\alpha$$ can only be positive.
+Now $$\alpha_{0} = \infty$$ because this way the term can be maximized.
+
+$$\begin{equation}
+   L(0.5,\alpha) = -1.25 + \infty*0.5+ 0*-4.5 \\
+   L(0.5,\alpha) = \infty
+\end{equation}$$
+
+The Lagrangian does not end up being equal to $$f(x)$$ because the first constraint is not satisfied. 
+
+
+But how do we do that beautyfull math in PyTourch? 
+* first lets look at some *simple* example like in the beginning
+* add more constraints
+* translate the whole thing to our final goal solution
 
 {% include videoPlayer.html file="tomars/toMars9.mp4" %}
 {% include videoPlayer.html file="tomars/toMars10.mp4" %}
