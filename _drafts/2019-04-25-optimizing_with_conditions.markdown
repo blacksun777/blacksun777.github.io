@@ -462,14 +462,126 @@ Now let us look at the same diagram but now with the function $$f(x)= x^2 -2.5x 
 {% include videoPlayer.html file="tomars/toMars10.mp4" %}
 Here we have a situation where we can see that constraints only influence the optimization while over the boundary. 
 
-## Solution
+## To Mars with speed limits
 Now let it put all together and solve our initial problem but now with speed constraints. 
 
 $$0 \leq speed \leq 0.5$$
 
+{% highlight python %}
+# Launch date: days starting from now
+Launch = nn.Parameter(ft([0]))
+# time spent in flight
+time = nn.Parameter(ft([0.1]))
+# Lagrange
+a = nn.Parameter(ft([0.1, 0.1]))
+
+def lagrange(x):
+  return torch.abs(a[0])*(x-0.5) + torch.abs(a[1])*(-x)
+
+def speed(day_launched, fly_time):
+  return distance(day_launched, fly_time)/ fly_time
+
+opt = Adam([Launch,time],lr = 2e-2)
+lagrange_opt = SGD([a],lr = 2e-2)
+
+for i in range(10000):
+  for k in range(5):
+    lagrange_opt.zero_grad()
+    lagrange_loss = -lagrange(speed(Launch, time))
+    lagrange_loss.backward()
+    lagrange_opt.step()
+
+  for k in range(2):
+    opt.zero_grad()
+    distance_loss = distance(Launch, time) + time + lagrange(speed(Launch, time))
+    distance_loss.backward()
+    opt.step()
+	
+flyDistance = distance(Launch, time)
+print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, flyDistance, flyDistance/time))
+grads = distance(Launch, time) + time + lagrange(speed(Launch, time))
+grads.backward()
+print('comp slack=%f \tgradient Launch=%f time=%f'%(lagrange(speed(Launch, time)),Launch.grad.item(),time.grad.item() ))
+{% endhighlight %}
+
+`Launch date=181.453705 	flighttime=159.843613	 distance=78.299995 	speed=0.489854`
+
+`comp slack=-43.264542 	gradient Launch=-0.000694 time=-24.136995`
+
+First this looks good. Let us check the KKT conditions:
+* The gradient of the generalized Lagrangian is 0. *OK*
+* The inequality constraints have _complementary slackness_. $$\alpha * h(x) = 0$$. *BAD*
+* $$x$$ satisfies the conditions we set. The speed is below 0.5 *OK*
+
+This does not look good, complementary slack should be 0. This means that we might not found the optimum yet.
+
+> This is not a solution!
+
+---
+
+We have to search for the right meta parameters like learning rate and repetitions.
+
+{% highlight python %}
+# Launch date: days starting from now
+Launch = nn.Parameter(ft([0]))
+# time spent in flight
+time = nn.Parameter(ft([100]))
+# Lagrange
+a0 = nn.Parameter(ft([0.1]))
+a1 = nn.Parameter(ft([0.1]))
+
+def lagrange(x):
+  return torch.abs(a0)*(x-0.5)+torch.abs(a1)*(-x)
+
+def speed(day_launched, fly_time):
+  return distance(day_launched, fly_time)/ fly_time
+
+opt = SGD([Launch,time],lr = 1e-1)
+lagrange_opt = SGD([a0,a1],lr = 1e-1)
+
+for i in range(25000):
+  for k in range(3):
+    lagrange_opt.zero_grad()
+    lagrange_loss = -lagrange(speed(Launch, time))
+    lagrange_loss.backward()
+    lagrange_opt.step()
+  opt.zero_grad()
+  distance_loss = distance(Launch, time) + time + lagrange(speed(Launch, time))
+  distance_loss.backward()
+  opt.step()
+{% endhighlight %}
+`Launch date=177.702499 	flighttime=156.541138	 distance=78.299988 	speed=0.500188`
+
+`comp slack=0.041567 	gradient Launch=-0.000459 time=-0.000172`
+
+Let us check the KKT conditions again:
+* The gradient of the generalized Lagrangian is 0. *OK*
+* The inequality constraints have _complementary slackness_. $$\alpha * h(x) = 0$$. *OK*
+* $$x$$ satisfies the conditions we set. The speed is below 0.5 *OK*
+
+*PERFECT* 
+
+Now all of our KKT conditions are satisfied. We had to change the learning rate and all numbers of iterations. I also changed from an Adam optimizer to SGD as the momentum caused the optimizer not to settle down. 
+
+Always check if you actually satisfy these conditions, otherwise you could be tricking yourself. 
+
+> This is a solution!
+
+Let us marvel at what we achieved. 
 {% include videoPlayer.html file="tomars/toMars11.mp4" %}
 
 # Conclusions
+We have seen a lot now:
+* How pyTourch optimizes work
+* How to model our problem
+* How to change and adapt our model and reason with it
+* How Karnush-Kuhn-Tucker works
+* How to apply it to our model 
+* How to fix KKT optimization problems
+
+I recommend you to try it out yourself. [Here is my code](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW) if you want to find out what else I did and how I made the animations.
+
+I you have any input or feedback please drop me a mail: e.geisseler+blog_kkt@gmail.com 
 
 # Attribution
 Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c@gmail.com
