@@ -101,8 +101,8 @@ If we have the launch date and the flight time we can also calculate the distanc
 
 $$\begin{equation}
    distance(t_{launch}, t_{flight})= \sqrt{(x_{mars}-x_{earth})^2+(y_{mars}-y_{earth})^2} | \\
-   (x_{mars}, y_{mars})=calcPosXY(t_{launch}+t_{flight}, rad_{mars}, r_{mars}) \\
-   \land (x_{earth}, y_{earth})=calcPosXY(t_{launch}, rad_{earth}, r_{earth})
+   (x_{mars}, y_{mars})=calcPosXY(t_{launch}+t_{flight}, rad_{mars}, r_{mars}) \land  \\
+   (x_{earth}, y_{earth})=calcPosXY(t_{launch}, rad_{earth}, r_{earth})
 \end{equation}$$
 
 We can use the distance as a loss function. The reasoning behind this is that if we have minimal distance to travel we can travel to mars the fastest. If the distance was large we might be even traveling near by the sun, we don't want that.
@@ -135,7 +135,10 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 LINK TO CODE
 
 {% include videoPlayer.html file="tomars/toMars3.mp4" %}
-Nice, we got a** Launch date in 189 days!** And its also the shortest route to the target because the **distance** is actually the same as the **Closest approach**. Speed is within bounds as well! But there is a problem: **Its a lie!** Kind of a lie. The values work and are correct, but it's a manufactured situation because of the `Launch` initial value of `200` and `time` initial value of `time_min`.
+Nice, we got a** Launch date in 189 days!** And its also the shortest route to the target because the **distance** is actually the same as the **Closest approach**. Speed is within bounds as well! 
+
+But there is a problem: **Its a lie!** Kind of a lie. The values work and are correct, but it's a manufactured situation because of the `Launch` initial value of `200` and `time` initial value of `time_min`.
+> It works but not always.
 
 ## solution with bad starting point
 lets do it again. Now with my favorite value and the only number I seem to remember
@@ -173,6 +176,7 @@ We now have different options:
 * Change the Optimization target, not just optimize for minimal distance but also minimal speed. Since in space changing speed means spending fuel(delta v), maybe it is a good idea to minimize it too.
 * We can add speed constraints to the optimization with Karnush-Kuhn-Tucker. And then try to get to mars at minimal time. 
 
+> This solution is not useful. 
 
 ## Constant max speed
 lets see what happens if we just use the max speed in our model.
@@ -211,6 +215,8 @@ Nice, it worked! Notice that this one is better than the original (10 days less 
 {% include videoPlayer.html file="tomars/toMars7.mp4" %}
 Not too surprising since we use `sin`, `cos` like in the optimizer introduction. Or in other words: Planets tend to come back around.
 
+> This solution is not guaranteed to be the best. 
+
 ## Minimal Speed
 What if we want to save fuel? Fuel is used to accelerate and brake the spaceship, the less fuel we use the less speed we are going to have. 
 We calculate the speed and add it to our loss function, so it should be minimized. Lets see what happens here.
@@ -237,6 +243,8 @@ LINK TO CODE
 A ton of iterations and still not at the optimum. What happened? Since the distance can not be less than the minimal distance between the planets *(78.299 M km)* the only gradient that can be minimized is the speed. Since planets tend to come around again we would just need light push and wait for a long long time eventually we would arrive. That's where this optimization is going. 
 In reality there is gravity of all the celestial bodies causing this plan to fail. **This Strategy is not useful. **
 
+> This solution is not useful. 
+
 # Constraint with Karnush-Kuhn-Tucker (KKT)
 While it's great to minimize functions with an optimizer we sometimes have constraints that need to be followed, like our speed limit of *0.5 M km/day*. 
 
@@ -246,6 +254,7 @@ $$ speed(metaSpeed) = \frac{maxSpeed}{1+e^{-metaSpeed}}$$
 
 A general way to constrain an optimization is the Karnush-Kuhn-Tucker method. It's quite tricky to explain this simply so I would recommend the great chapter [4.4 Constrained Optimization](https://www.deeplearningbook.org/contents/numerical.html) of the [deeplearningbook](https://www.deeplearningbook.org/).
 
+---
 
 Instead of a generalized problem I want to try explain it in applied situations. So let us start with the function to optimize:
 
@@ -262,6 +271,8 @@ $$\begin{equation}
    h_1: x - 5 \leq 0 
 \end{equation}$$
 
+---
+
 Now let us look at the generalized Lagrangian:
 
 $$\begin{equation}
@@ -274,6 +285,7 @@ $$\begin{equation}
 By throwing away the empty sum for the equality constants and filling in the inequality constants we get:
 
 $$\begin{equation}
+   L(x,\alpha) = f(x) + lh_{0}(x)+ lh_{1}(x) \\
    L(x,\alpha) = f(x) + \alpha_{0} h_{0}(x)+ \alpha_{1} h_{1}(x) \\
    L(x,\alpha) = x^2 -x -1 + \alpha_{0} (1 - x)+ \alpha_{1}(x-5) \\
 \end{equation}$$
@@ -290,7 +302,11 @@ $$\begin{equation}
    \min_{x} \max_{\alpha,\alpha \geq 0} L(x,\alpha)
 \end{equation}$$
 
-Great! I know this can be confusing at first so let us observe two situations with the equations. Once for within bounds `x=1` and once outside of them `x=0.5` 
+Great! I know this can be confusing at first so let us observe two situations with the equations. 
+
+---
+
+Once for within bounds `x=1` and once outside of them `x=0.5` 
 
 $$\begin{equation}
 \text{x=1}\\
@@ -316,6 +332,9 @@ $$\begin{equation}
 \end{equation}$$
 
 Both constraints are satisfied and cause the terms to be zero. This is called *complementary slack*. We are left with the original $$f(x)$$. 
+
+---
+
 Now let us observe the situation when a constraint is not satisfied anymore. `x=0.5` is actually the optimal solution without constraints. But with:
  
 $$\begin{equation}
@@ -342,16 +361,111 @@ $$\begin{equation}
 
 The Lagrangian does not end up being equal to $$f(x)$$ because the first constraint is not satisfied. 
 
+---
 
-But how do we do that beautyfull math in PyTourch? 
-* first lets look at some *simple* example like in the beginning
-* add more constraints
-* translate the whole thing to our final goal solution
+When using KKT to constrain a problem it is also important to check the following properties:
+* The gradient of the generalized Lagrangian is 0. $$\frac{d}{d x} L(x,\lambda, \alpha) = 0$$
+* The inequality constraints have _complementary slackness_. $$\alpha * h(x) = 0$$
+* $$x$$ satisfies the conditions we set. 
+
+
+## KKT applied
+Let's apply the process of constraint optimization to code and then visualize it to see what happens to the KKT conditions. We will still use the same $$f(x) = x^2-x-1$$ with the constrains $$ 1\leq x \leq 5$$. 
+
+$$\begin{equation}
+   f(x) = x^2-x-1 \\
+   lh_0(x)= \alpha_{0} (1 - x) \\
+   lh_1(x)= \alpha_{1} (x - 5) \\
+   \min_{x}  \max_{\alpha, \alpha \geq 0 }  x^2 -x -1 + \alpha_{0} *(1 -x) + \alpha_{1} *(x-5)
+   
+\end{equation}$$
+
+{% highlight python %}
+x = nn.Parameter(ft([3]))
+a0 = nn.Parameter(ft([1]))
+a1 = nn.Parameter(ft([1]))
+
+def f(x):
+  return x**2 -1*x -1
+
+#coditions
+def h0(x):
+  return 1 -x
+  
+def h1(x):
+  return x -5
+
+#lagrange conditions
+def lh0(x, a):
+  return torch.abs(a) * h0(x)
+  
+def lh1(x, a):
+  return torch.abs(a) *h1(x)
+    
+def lagrange(x, a0, a1):
+  return lh0(x, a0) +lh1(x,a1)
+
+f_opt = Adam([x], lr=5e-2)
+lagrange_opt = SGD([a0, a1], lr=8e-3)
+
+for i in range(120):
+  # maxing the a
+  for k in range(10):
+    lagrange_opt.zero_grad()
+    lagrange_loss = -lagrange(x, a0, a1)
+    lagrange_loss.backward()
+    lagrange_opt.step()
+    
+  # minimizing x
+  for m in range(5):
+    f_opt.zero_grad()
+    loss = f(x) + lagrange(x, a0, a1)
+    loss.backward()
+    f_opt.step()
+{% endhighlight%}
+The following should be noted about the implementation:
+* First we introduce all the parameters. In order to keep the `a`'s positive we wrap them in the torch.abs or square them. 
+* Since we need to do two optimizations (min, max) we need two optimizers. One for the x and one for the a
+* first we max a for a given x. *Notice the sign swap at `-lagrange()` as optimizes only minimize*
+* We now minimize the whole generalized Lagrangian. *Notice the `+lagrange()`, no more sign swap*
+
+---
+
+The optimization is successful if we see the following:
+* All x constraints satisfied. The first plot (*north*) will show us where x ended up and the lower limit is marked.
+* The gradient of the general lagragian is 0. This is shown by the middle middle (*center*) diagram, and to it's side the active components that create it (`f(x)`(*west*) and the `lh0(x)`(*east*))
+* Complementary slack = 0. We find this in the lowest part of the diagramm, here in blue. Along with all the gradients of the lagragian (*south*).  
 
 {% include videoPlayer.html file="tomars/toMars9.mp4" %}
+Focus on the north diagram.  See that the optimizer fist approaches `x=0.5` but once under the `x=1.0` line it goes back and finally balances on the `x=1.0` bound. Once the optimizer is settled our `x` satisfies all our requirements. 
+
+The west diagram shows the gradient of $$f(x)$$. It shows the steepens of the function $$f()$$ we originally want to optimize. Notice that during the whole time and even at the end this gradient always points to down to the left (lower x).
+
+The eastern diagram shows the gradient of `a0*h0`. 
+* At first while x stays within the `x>=1` bound the gradient is 0, this means it has no influence on the optimization during that time. 
+* Once x passes the bound it jumps up in an attempt to get x back within its bounds. 
+* The x then goes back within its bounds and the gradient decreases again (if x would stay within the bounds it would go back to 0).
+*  At the end the the gradient ends up to match the opposite of $$f(x)$$  
+
+The center diagram shows the generalized Lagrangian. It is basically the west and eastern diagram added together. 
+* At fist the gradient is following the gradient of the function f.
+* Once over the bound it increases so much as to actually cause x to go back up.
+* It then goes back and fourth around the bound.
+* At the end the gradient settles at 0. This means it found a minima.
+
+The south diagram shows all of the gradients, including $$\frac{d}{dx}lh_1(x)$$ which stays at 0 since x is always staying bellow 5. 
+Notice the blue line `slack0:` $$lh_0(x)$$, it is one of the KKT conditions and should be 0 at the end, once x is out of bounds this one shoots up. The slack then settles at 0 once within bounds again.
+
+### KKT applied to a different function
+Now let us look at the same diagram but now with the function $$f(x)= x^2 -2.5x +0.5$$ and the constraints $$ 1\leq x \leq 5$$.
+
 {% include videoPlayer.html file="tomars/toMars10.mp4" %}
+Here we have a situation where we can see that constraints only influence the optimization while over the boundary. 
 
 ## Solution
+Now let it put all together and solve our initial problem but now with speed constraints. 
+
+$$0 \leq speed \leq 0.5$$
 
 {% include videoPlayer.html file="tomars/toMars11.mp4" %}
 
