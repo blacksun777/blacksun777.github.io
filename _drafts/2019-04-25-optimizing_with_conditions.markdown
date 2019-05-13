@@ -132,7 +132,7 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 {% endhighlight %}
 `Launch date=189.591919 	flighttime=167.008087	 distance=78.299988 	speed=0.468839`
 
-LINK TO CODE
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=f_5YVApYYFrq)
 
 {% include videoPlayer.html file="tomars/toMars3.mp4" %}
 Nice, we got a** Launch date in 189 days!** And its also the shortest route to the target because the **distance** is actually the same as the **Closest approach**. Speed is within bounds as well! 
@@ -150,7 +150,7 @@ time = nn.Parameter(ft([0]))
 {% endhighlight %}
 `Launch date=0.000000 	flighttime=0.000000	 distance=78.299988 	speed=inf`
 
-LINK TO CODE
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=je9vNb7y17x5)
 
 {% include videoPlayer.html file="tomars/toMars4.mp4" %}
 
@@ -166,7 +166,7 @@ Launch = nn.Parameter(ft([10]))
 time = nn.Parameter(ft([0.1]))
 {% endhighlight %}
 
-LINK TO CODE
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=Bp7sE_tNxP2V)
 
 {% include videoPlayer.html file="tomars/toMars5.mp4" %}
 Well this is better but not within the speed limit of *0.5 M km/day* 
@@ -208,7 +208,7 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 {% endhighlight %}
 `Launch date=173.894073 	flighttime=157.322617	 distance=78.611275 	speed=0.499682`
 
-LINK TO CODE
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=lilDzuuM1YFa)
 
 {% include videoPlayer.html file="tomars/toMars6.mp4" %}
 Nice, it worked! Notice that this one is better than the original (10 days less flying). We can also start to search future opportunities. 
@@ -237,7 +237,7 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 {% endhighlight %}
 `Launch date=1018.749268 	flighttime=897.419373	 distance=78.299988 	speed=0.087250`
 
-LINK TO CODE
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=T6bGTGpp7By-)
 
 {% include videoPlayer.html file="tomars/toMars8.mp4" %}
 A ton of iterations and still not at the optimum. What happened? Since the distance can not be less than the minimal distance between the planets *(78.299 M km)* the only gradient that can be minimized is the speed. Since planets tend to come around again we would just need light push and wait for a long long time eventually we would arrive. That's where this optimization is going. 
@@ -567,6 +567,8 @@ Always check if you actually satisfy these conditions, otherwise you could be tr
 
 > This is a solution!
 
+[LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=A6IAX02MVYhq)
+
 Let us marvel at what we achieved. 
 {% include videoPlayer.html file="tomars/toMars11.mp4" %}
 
@@ -584,4 +586,4 @@ I recommend you to try it out yourself. [Here is my code](https://colab.research
 I you have any input or feedback please drop me a mail: e.geisseler+blog_kkt@gmail.com 
 
 # Attribution
-Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c@gmail.com
+Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c+ref_blog_kkt@gmail.com
