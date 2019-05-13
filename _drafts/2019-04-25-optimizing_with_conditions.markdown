@@ -135,7 +135,7 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 [LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=f_5YVApYYFrq)
 
 {% include videoPlayer.html file="tomars/toMars3.mp4" %}
-Nice, we got a** Launch date in 189 days!** And its also the shortest route to the target because the **distance** is actually the same as the **Closest approach**. Speed is within bounds as well! 
+Nice, we got a **Launch date in 189 days!** And its also the shortest route to the target because the **distance** is actually the same as the **Closest approach**. Speed is within bounds as well! 
 
 But there is a problem: **Its a lie!** Kind of a lie. The values work and are correct, but it's a manufactured situation because of the `Launch` initial value of `200` and `time` initial value of `time_min`.
 > It works but not always.
@@ -165,11 +165,12 @@ Launch = nn.Parameter(ft([10]))
 # time spent in flight
 time = nn.Parameter(ft([0.1]))
 {% endhighlight %}
+`Launch date=5.369761 	flighttime=4.730242	 distance=78.299988 	speed=16.553061`
 
 [LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=Bp7sE_tNxP2V)
 
 {% include videoPlayer.html file="tomars/toMars5.mp4" %}
-Well this is better but not within the speed limit of *0.5 M km/day* 
+Well this is better but **not within the speed limit** of *0.5 M km/day* 
 We now have different options:
 * Go on and search for good starting parameters where everything is within bounds, like the example with good parameter initialization. This is not really reliable but maybe good enough. 
 * Set the speed to constant max, this might be okay or might cause us to miss a good solution.
@@ -211,14 +212,14 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 [LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=lilDzuuM1YFa)
 
 {% include videoPlayer.html file="tomars/toMars6.mp4" %}
-Nice, it worked! Notice that this one is better than the original (10 days less flying). We can also start to search future opportunities. 
+Nice, it worked! Notice that this one is better than the original (here we  have 10 days less travel). We can also start to search future opportunities. 
 {% include videoPlayer.html file="tomars/toMars7.mp4" %}
 Not too surprising since we use `sin`, `cos` like in the optimizer introduction. Or in other words: Planets tend to come back around.
 
 > This solution is not guaranteed to be the best. 
 
 ## Minimal Speed
-What if we want to save fuel? Fuel is used to accelerate and brake the spaceship, the less fuel we use the less speed we are going to have. 
+What if we want to save fuel? Fuel is used to accelerate and brake the spaceship, the less fuel we use the less speed we are going to need. 
 We calculate the speed and add it to our loss function, so it should be minimized. Lets see what happens here.
 
 {% highlight python %}
@@ -240,8 +241,8 @@ print('Launch date=%f \tflighttime=%f\t distance=%f \tspeed=%f'%(Launch, time, f
 [LINK TO CODE](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW#scrollTo=T6bGTGpp7By-)
 
 {% include videoPlayer.html file="tomars/toMars8.mp4" %}
-A ton of iterations and still not at the optimum. What happened? Since the distance can not be less than the minimal distance between the planets *(78.299 M km)* the only gradient that can be minimized is the speed. Since planets tend to come around again we would just need light push and wait for a long long time eventually we would arrive. That's where this optimization is going. 
-In reality there is gravity of all the celestial bodies causing this plan to fail. **This Strategy is not useful. **
+A ton of iterations and still not at the optimum. What happened? Since the distance can not be less than the minimal distance between the planets *(78.299 M km)* the only gradient that can be minimized is the speed. Since planets tend to come around again we would just need a light push and wait for a long long time eventually we would arrive. That's where this optimization is going. 
+In reality there is gravity of all the celestial bodies causing this plan to fail. **This Strategy is not useful.**
 
 > This solution is not useful. 
 
@@ -310,6 +311,7 @@ Once for within bounds `x=1` and once outside of them `x=0.5`
 
 $$\begin{equation}
 \text{x=1}\\
+   L(x,\alpha) = x^2 -x -1 + \alpha_{0} (1 - x)+ \alpha_{1}(x-5) \\
    L(1,\alpha) = 1^2 -1 -1 + \alpha_{0} (1 - 1)+ \alpha_{1}(1-5)\\
    L(1,\alpha) = -1 + \alpha_{0} (0)+ \alpha_{1}(-4)
 \end{equation}$$
@@ -324,7 +326,7 @@ $$\begin{equation}
 
 Both constraints have no way to increase the value of the term. Note $$\alpha_{1} = 0$$ because all $$\alpha$$ can only be positive.
 
-But why $$\alpha_{0} = \infty$$? We plan to use gradient descent for our solution, this will cause our x to a bit under `x=1` causing the term to be slightly positive and that is why $$\alpha_{0}$$ will grow rather large, we will see later. 
+But why $$\alpha_{0} = \infty$$? We plan to use gradient descent for our solution, this will cause our x to a bit under `x=1` causing the term to be slightly positive and that is why $$\alpha_{0}$$ will grow rather large, we will see this later. Since both terms end up 0 we remove them and get:
 
 $$\begin{equation}
    L(1,\alpha) = -1 + \infty*0+ 0*-4 \\
@@ -339,6 +341,7 @@ Now let us observe the situation when a constraint is not satisfied anymore. `x=
  
 $$\begin{equation}
 \text{x=0.5}\\
+   L(x,\alpha) = x^2 -x -1 + \alpha_{0} (1 - x)+ \alpha_{1}(x-5) \\
    L(0.5,\alpha) = 0.5^2 -0.5 -1 + \alpha_{0} (1 - 0.5)+ \alpha_{1}(0.5-5)\\
    L(0.5,\alpha) = -1.25 + \alpha_{0} (0.5)+ \alpha_{1}(-4.5)
 \end{equation}$$
@@ -359,7 +362,7 @@ $$\begin{equation}
    L(0.5,\alpha) = \infty
 \end{equation}$$
 
-The Lagrangian does not end up being equal to $$f(x)$$ because the first constraint is not satisfied. 
+The Lagrangian does not end up being equal to $$f(x)$$ because the first constraint is not satisfied. The gradient of the function will change to push x back within bounds. 
 
 ---
 
@@ -367,6 +370,8 @@ When using KKT to constrain a problem it is also important to check the followin
 * The gradient of the generalized Lagrangian is 0. $$\frac{d}{d x} L(x,\lambda, \alpha) = 0$$
 * The inequality constraints have _complementary slackness_. $$\alpha * h(x) = 0$$
 * $$x$$ satisfies the conditions we set. 
+
+If this conditions are not met after the optimization we need to investigate and try to solve the problem.
 
 
 ## KKT applied
@@ -425,9 +430,9 @@ for i in range(120):
 {% endhighlight%}
 The following should be noted about the implementation:
 * First we introduce all the parameters. In order to keep the `a`'s positive we wrap them in the torch.abs or square them. 
-* Since we need to do two optimizations (min, max) we need two optimizers. One for the x and one for the a
-* first we max a for a given x. *Notice the sign swap at `-lagrange()` as optimizes only minimize*
-* We now minimize the whole generalized Lagrangian. *Notice the `+lagrange()`, no more sign swap*
+* Since we need to do two optimizations (min, max) we need two optimizers. One for the x and one for the a.
+* first we max a for a given x. *Notice the sign swap at `-lagrange()` in the `k` loop as optimizes only minimize*.
+* We now minimize the whole generalized Lagrangian. *Notice the `+lagrange()` in the `m` loop, no more sign swap* needed.
 
 ---
 
@@ -447,7 +452,7 @@ The eastern diagram shows the gradient of `a0*h0`.
 * The x then goes back within its bounds and the gradient decreases again (if x would stay within the bounds it would go back to 0).
 *  At the end the the gradient ends up to match the opposite of $$f(x)$$  
 
-The center diagram shows the generalized Lagrangian. It is basically the west and eastern diagram added together. 
+The center diagram shows the generalized Lagrangian. It is basically the west and eastern diagram added together. This shows us how `x` will optimize in the next step.
 * At fist the gradient is following the gradient of the function f.
 * Once over the bound it increases so much as to actually cause x to go back up.
 * It then goes back and fourth around the bound.
@@ -460,7 +465,7 @@ Notice the blue line `slack0:` $$lh_0(x)$$, it is one of the KKT conditions and 
 Now let us look at the same diagram but now with the function $$f(x)= x^2 -2.5x +0.5$$ and the constraints $$ 1\leq x \leq 5$$.
 
 {% include videoPlayer.html file="tomars/toMars10.mp4" %}
-Here we have a situation where we can see that constraints only influence the optimization while over the boundary. 
+Here we have a situation where we can see that constraints only influence the optimization while over the boundary. Make sure you see that all conditions are satisfied!
 
 ## To Mars with speed limits
 Now let it put all together and solve our initial problem but now with speed constraints. 
@@ -583,7 +588,7 @@ We have seen a lot now:
 
 I recommend you to try it out yourself. [Here is my code](https://colab.research.google.com/drive/1TkazncDHYCHdxeyKk9e4eZnBvnTBW1JW) if you want to find out what else I did and how I made the animations.
 
-I you have any input or feedback please drop me a mail: e.geisseler+blog_kkt@gmail.com 
+If you have any input or feedback please drop me a mail: e.geisseler+blog_kkt@gmail.com 
 
 # Attribution
 Original problem [presented here](https://colab.research.google.com/drive/15sg1s9WSkAvXaGJ5genkHi_SeXKT5xES) by:  b2ray2c+ref_blog_kkt@gmail.com
